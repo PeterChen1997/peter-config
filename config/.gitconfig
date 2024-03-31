@@ -1,0 +1,19 @@
+[alias]
+    p = pull
+    st = status
+    cz = commit
+    b = branch
+    co = checkout
+    df = diff
+    ad = add
+    cp = cherry-pick
+    lg = log -p
+    ca = commit --amend
+    cg = config --global -e
+[user]
+    email = 13093023233@163.com
+    name = Peter Chen
+[core]
+    editor = code --wait
+[init]
+    defaultBranch = master
