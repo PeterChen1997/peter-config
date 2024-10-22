@@ -18,7 +18,8 @@ Hello 朋友们，这里记录了我开发环境的基本配置已经我的设�
 - iPhone 14 Plus
 - iPad Pro 3rd gen - 11 inch
 - IQOO Z8
-- J3180 IBM 软路由
+- ~J3180 IBM 软路由~
+- 零刻 Ser8 32G+1T
 - 群晖 DS220+ NAS
 - 联想拯救者 R9000P 2021
 
