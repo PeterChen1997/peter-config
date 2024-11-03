@@ -1,6 +1,4 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+# Theme Powerlevel10k
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -21,35 +19,33 @@ export PATH="$PATH:$(yarn global bin)"
 eval "$(rbenv init -)"
 
 # pnpm
-export PNPM_HOME="$HOME/Library/pnpm"
+export PNPM_HOME="/Users/peterchen/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
-# pnpm end
 
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-
-# ~.zshrc
+# zsh
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting autojump copypath copyfile)
 ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# eval "$(starship init zsh)"
-source ~/powerlevel10k/powerlevel10k.zsh-theme
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+export ZSH=~/.oh-my-zsh
+source $ZSH/oh-my-zsh.sh
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-source $HOME/code_hub/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-export PATH=$HOME/.meteor:$PATH
-export PATH=$HOME/Downloads/qshell:$PATH
 
+# zplug
+export ZPLUG_HOME=/opt/homebrew/opt/zplug
+source $ZPLUG_HOME/init.zsh
 
-alias m="make -f '$HOME/code_hub/makefile'"
+# extra pkgs
+export PATH=/Users/peterchen/.meteor:$PATH
+export PATH=/Users/peterchen/Downloads/qshell:$PATH
+
+# alias
+alias m="make -f '/Users/peterchen/code_hub/makefile'"
 alias zj='zellij'
 
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
-
-# python
+# pyenv
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 
 # deno
-export DENO_INSTALL="$HOME/.deno"
+export DENO_INSTALL="/Users/peterchen/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
