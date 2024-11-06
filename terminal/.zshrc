@@ -49,3 +49,6 @@ eval "$(pyenv init -)"
 # deno
 export DENO_INSTALL="/Users/peterchen/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
+
+# git
+alias m="make -f $HOME/config/git.mk"
