@@ -15,6 +15,9 @@ export NVM_DIR="$HOME/.nvm"
 # yarn
 export PATH="$PATH:$(yarn global bin)"
 
+# homebrew
+export PATH="/opt/homebrew/bin:$PATH"
+
 # rbenv
 eval "$(rbenv init -)"
 
