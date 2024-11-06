@@ -22,7 +22,7 @@ export PATH="/opt/homebrew/bin:$PATH"
 eval "$(rbenv init -)"
 
 # pnpm
-export PNPM_HOME="/Users/peterchen/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
 # zsh
@@ -37,11 +37,10 @@ export ZPLUG_HOME=/opt/homebrew/opt/zplug
 source $ZPLUG_HOME/init.zsh
 
 # extra pkgs
-export PATH=/Users/peterchen/.meteor:$PATH
-export PATH=/Users/peterchen/Downloads/qshell:$PATH
+export PATH=$HOME/.meteor:$PATH
+export PATH=$HOME/Downloads/qshell:$PATH
 
 # alias
-alias m="make -f '/Users/peterchen/code_hub/makefile'"
 alias zj='zellij'
 
 # pyenv
@@ -50,7 +49,7 @@ eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 
 # deno
-export DENO_INSTALL="/Users/peterchen/.deno"
+export DENO_INSTALL="$HOME/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
 
 # git
