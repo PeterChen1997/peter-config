@@ -63,3 +63,12 @@ sn:
 sr:
 	git fetch
 	git merge origin/rc
+
+# upgrade
+u:
+ifndef pkg
+	@echo "请指定要升级的包名，例如: make u pkg=react"
+	@exit 1
+endif
+	@echo "正在升级 $(pkg) 到最新版本..."
+	nu $(pkg)@latest
