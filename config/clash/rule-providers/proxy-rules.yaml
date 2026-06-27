@@ -1,0 +1,22 @@
+payload:
+  - DOMAIN-KEYWORD,mobbin
+  - DOMAIN-KEYWORD,replit
+  - DOMAIN-KEYWORD,metamask
+  - DOMAIN-KEYWORD,astro
+  - DOMAIN-KEYWORD,recraft
+  - DOMAIN-KEYWORD,n8n
+  - DOMAIN-KEYWORD,resend
+  - DOMAIN-KEYWORD,flowith
+  - DOMAIN-KEYWORD,neon
+  - DOMAIN-KEYWORD,21st
+  - DOMAIN-KEYWORD,hdclone
+  - DOMAIN-KEYWORD,shadcn
+  - DOMAIN-KEYWORD,namesilo
+  - DOMAIN-KEYWORD,suno
+  - DOMAIN-KEYWORD,dify
+  - DOMAIN-SUFFIX,docker.io
+  - DOMAIN-KEYWORD,starmakerstudios
+  - DOMAIN-KEYWORD,airtable
+  - DOMAIN-KEYWORD,instagram
+  - DOMAIN-KEYWORD,supabase
+  - IP-CIDR,118.194.253.63/32,no-resolve
