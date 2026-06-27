@@ -37,16 +37,13 @@ export ZPLUG_HOME=/opt/homebrew/opt/zplug
 source $ZPLUG_HOME/init.zsh
 
 # extra pkgs
-export PATH=$HOME/.meteor:$PATH
 export PATH=$HOME/Downloads/qshell:$PATH
 
 # alias
 alias zj='zellij'
 
-# pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
+# uv (python)
+export PATH="$HOME/.local/bin:$PATH"
 
 # deno
 export DENO_INSTALL="$HOME/.deno"

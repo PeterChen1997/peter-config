@@ -12,3 +12,8 @@ DOMAIN-SUFFIX,pstatp.com
 # 快手
 DOMAIN-KEYWORD,kuaishou
 DOMAIN-SUFFIX,ksyun.com
+# B 站
+DOMAIN-SUFFIX,bilivideo.com
+DOMAIN-SUFFIX,hdslb.com
+DOMAIN-SUFFIX,acgvideo.com
+DOMAIN-KEYWORD,bilibili
