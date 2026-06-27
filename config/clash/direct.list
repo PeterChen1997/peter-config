@@ -1,2 +1,14 @@
 DOMAIN-KEYWORD,bytednsdoc
 DOMAIN-KEYWORD,peterchen97
+# 小红书
+DOMAIN-SUFFIX,xhscdn.com
+DOMAIN-KEYWORD,xiaohongshu
+# 抖音/字节跳动媒体 CDN
+DOMAIN-SUFFIX,douyinvod.com
+DOMAIN-SUFFIX,douyinpic.com
+DOMAIN-KEYWORD,byteimg
+DOMAIN-KEYWORD,bytedance
+DOMAIN-SUFFIX,pstatp.com
+# 快手
+DOMAIN-KEYWORD,kuaishou
+DOMAIN-SUFFIX,ksyun.com

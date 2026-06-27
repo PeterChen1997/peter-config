@@ -19,4 +19,5 @@ DOMAIN-SUFFIX,docker.io
 DOMAIN-KEYWORD,starmakerstudios
 DOMAIN-KEYWORD,airtable
 DOMAIN-KEYWORD,instagram
+DOMAIN-KEYWORD,supabase
 IP-CIDR,118.194.253.63/32
