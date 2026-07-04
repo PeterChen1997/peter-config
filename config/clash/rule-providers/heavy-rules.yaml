@@ -1,0 +1,23 @@
+# 大流量补充规则（自维护）→ 策略组「大流量」（便宜出口：华云 IEPL + EqualVPN 娱乐节点）
+# 维护方式：在 OpenClash「连接」页 / Stash「最近请求」按流量排序，发现新的流量大户就加进来，
+# 保护住宅 IP 的流量额度。YouTube/Netflix/Twitter 等主流媒体已由 bm7 规则集覆盖，这里放长尾项。
+payload:
+  # 容器镜像拉取
+  - DOMAIN-SUFFIX,docker.io
+  - DOMAIN-SUFFIX,docker.com
+  - DOMAIN-SUFFIX,ghcr.io
+  - DOMAIN-SUFFIX,quay.io
+  - DOMAIN-SUFFIX,gcr.io
+  # 模型 / 大文件下载
+  - DOMAIN-SUFFIX,huggingface.co
+  - DOMAIN-SUFFIX,hf.co
+  - DOMAIN-SUFFIX,civitai.com
+  # Discord（语音/视频/图片 CDN 流量大，无区域风控）—— 2026-07-04 流量分析发现走住宅
+  - DOMAIN-SUFFIX,discord.com
+  - DOMAIN-SUFFIX,discord.gg
+  - DOMAIN-SUFFIX,discordapp.com
+  - DOMAIN-SUFFIX,discordapp.net
+  - DOMAIN-SUFFIX,discord.media
+  # 低价值遥测上报（Sentry/Datadog 等，没必要烧住宅额度）—— 2026-07-04 流量分析发现走住宅
+  - DOMAIN-SUFFIX,sentry.io
+  - DOMAIN-SUFFIX,datadoghq.com

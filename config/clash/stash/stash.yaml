@@ -1,0 +1,264 @@
+# Stash 主配置 —— 与家里 OpenClash 同一套分流策略（详见 config/clash/ROUTING.md）
+#
+# 使用前：
+#   1. 把下面 proxy-providers 里的 EQUALVPN_SUB_URL / HUAYUN_SUB_URL 替换成真实订阅链接
+#   2. 若 equalvpn 订阅被 Cloudflare 验证挡住无法拉取，可把本仓库 config/clash/config/equalvpn.yaml
+#      里的 proxies 段直接内联到本文件 proxies: 下，并注释掉 equalvpn provider
+#
+# 策略组与 OpenClash 端同名，两端行为一致：
+#   AI 专线   → 美国静态住宅 IP（风控敏感 + 国外兜底默认）
+#   大流量    → 华云 IEPL + EqualVPN 娱乐节点（Twitter/YouTube 等流量大户）
+
+mode: rule
+log-level: info
+
+dns:
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  fallback:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+  fake-ip-filter:
+    - "+.stun.*.*"
+    - "+.stun.*.*.*"
+    - "lens.l.google.com"
+    - "*.n.n.srv.nintendo.net"
+    - "+.stun.playstation.net"
+    - "xbox.*.*.microsoft.com"
+    - "*.*.xboxlive.com"
+    - "*.msftncsi.com"
+    - "*.msftconnecttest.com"
+
+# 自建节点：住宅节点故障时在「AI 专线」组里手动切换兜底
+proxies:
+  - name: "自建US-VLESS"
+    type: vless
+    server: 23.95.196.34
+    port: 443
+    uuid: d2849d1d-b2df-444f-9e26-8e3b7dad7e30
+    network: tcp
+    tls: true
+    udp: true
+    flow: xtls-rprx-vision
+    servername: m.ctrip.com
+    client-fingerprint: chrome
+    reality-opts:
+      public-key: SDS5TeilPa5vmol9eGS4a7QNiMVV4XPdg1D6tzyWwlA
+      short-id: 3a3f56
+
+proxy-providers:
+  equalvpn:
+    type: http
+    url: "EQUALVPN_SUB_URL"
+    interval: 43200
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 600
+  huayun:
+    # 花云订阅是 base64/v2ray 格式，Stash provider 只认 clash yaml，经自建 subconverter 转一遍。
+    # 把 HUAYUN_SUB_URL_ENCODED 替换成【URL 编码后】的花云订阅链接：
+    #   python3 -c "import urllib.parse;print(urllib.parse.quote('花云订阅链接', safe=''))"
+    # list=true 表示只输出 proxies 节点列表（provider 专用格式）
+    type: http
+    url: "https://sub.hweb.peterchen97.cn/sub?target=clash&url=HUAYUN_SUB_URL_ENCODED&list=true"
+    interval: 43200
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 600
+
+proxy-groups:
+  # 住宅节点（从 equalvpn 订阅按名字过滤出来的中间组）
+  # 注意：select 组里 proxies 排在 use 订阅节点之前、默认选中第一个，
+  # 所以 AI 专线必须通过这个中间组把住宅压在自建节点前面，否则默认出口会变成自建 VLESS
+  - name: "住宅节点"
+    type: select
+    use:
+      - equalvpn
+    filter: "住宅|静态"
+
+  # 风控敏感（OpenAI/Claude/Gemini 等）+ 国外兜底默认出口；默认第一项 = 住宅
+  - name: "AI 专线"
+    type: select
+    proxies:
+      - "住宅节点"
+      - "自建US-VLESS"
+
+  # 流量大户出口：自动测速选优
+  - name: "大流量自动"
+    type: url-test
+    use:
+      - equalvpn
+      - huayun
+    filter: "IEPL|娱乐"
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+
+  # 流量大户出口：手动开关，默认跟随自动
+  - name: "大流量"
+    type: select
+    proxies:
+      - "大流量自动"
+    use:
+      - equalvpn
+      - huayun
+    filter: "IEPL|娱乐"
+
+  # 未命中任何规则的国外流量走这里，默认住宅（质量优先）
+  - name: "国外兜底"
+    type: select
+    proxies:
+      - "AI 专线"
+      - "大流量"
+
+rule-providers:
+  # 本仓库自维护
+  peter-direct:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers/direct-rules.yaml
+    interval: 86400
+  peter-ai:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers/ai-rules.yaml
+    interval: 86400
+  peter-heavy:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers/heavy-rules.yaml
+    interval: 86400
+  peter-proxy:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers/proxy-rules.yaml
+    interval: 86400
+  # blackmatrix7（No_Resolve 版本：IP 规则不触发提前 DNS 解析）
+  bm7-openai:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI_No_Resolve.yaml
+    interval: 86400
+  bm7-claude:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude_No_Resolve.yaml
+    interval: 86400
+  bm7-gemini:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Gemini/Gemini_No_Resolve.yaml
+    interval: 86400
+  bm7-youtube:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube_No_Resolve.yaml
+    interval: 86400
+  bm7-netflix:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix_No_Resolve.yaml
+    interval: 86400
+  bm7-tiktok:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok_No_Resolve.yaml
+    interval: 86400
+  bm7-spotify:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify_No_Resolve.yaml
+    interval: 86400
+  bm7-twitter:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Twitter/Twitter_No_Resolve.yaml
+    interval: 86400
+  bm7-instagram:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Instagram/Instagram_No_Resolve.yaml
+    interval: 86400
+  bm7-telegram:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram_No_Resolve.yaml
+    interval: 86400
+  bm7-globalmedia:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GlobalMedia/GlobalMedia_Classical_No_Resolve.yaml
+    interval: 86400
+  bm7-speedtest:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Speedtest/Speedtest_No_Resolve.yaml
+    interval: 86400
+
+rules:
+  # 本地 / 局域网
+  - DOMAIN-SUFFIX,local,DIRECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - IP-CIDR,10.0.0.0/8,DIRECT
+  - IP-CIDR,172.16.0.0/12,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT
+  - IP-CIDR,100.64.0.0/10,DIRECT
+
+  # 广告（家里由 AdGuard Home 负责，这条主要覆盖蜂窝网络场景）
+  - GEOSITE,category-ads-all,REJECT
+
+  # 自定义直连（含 Apple、国内 CDN、代理节点端点）
+  - RULE-SET,peter-direct,DIRECT
+
+  # AI / 风控敏感 → 美国静态住宅（先于媒体规则，防止 Google 系 AI 域名被媒体规则误伤）
+  - RULE-SET,peter-ai,AI 专线
+  - RULE-SET,bm7-openai,AI 专线
+  - RULE-SET,bm7-claude,AI 专线
+  - RULE-SET,bm7-gemini,AI 专线
+
+  # 流量大户 → 便宜出口
+  - RULE-SET,bm7-youtube,大流量
+  - RULE-SET,bm7-netflix,大流量
+  - RULE-SET,bm7-tiktok,大流量
+  - RULE-SET,bm7-spotify,大流量
+  - RULE-SET,bm7-twitter,大流量
+  - RULE-SET,bm7-instagram,大流量
+  - RULE-SET,bm7-telegram,大流量
+  - RULE-SET,bm7-globalmedia,大流量
+  - RULE-SET,bm7-speedtest,大流量
+  - RULE-SET,peter-heavy,大流量
+
+  # 杂项强制代理（开发 / 设计 / 支付工具）→ 住宅
+  - RULE-SET,peter-proxy,AI 专线
+
+  # 国内直连
+  - GEOSITE,CN,DIRECT
+  - GEOIP,CN,DIRECT
+
+  # 兜底：默认住宅，质量优先
+  - MATCH,国外兜底

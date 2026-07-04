@@ -14,10 +14,8 @@ payload:
   - DOMAIN-KEYWORD,namesilo
   - DOMAIN-KEYWORD,suno
   - DOMAIN-KEYWORD,dify
-  - DOMAIN-SUFFIX,docker.io
   - DOMAIN-KEYWORD,starmakerstudios
   - DOMAIN-KEYWORD,airtable
-  - DOMAIN-KEYWORD,instagram
   - DOMAIN-KEYWORD,supabase
   # AI 工具
   - DOMAIN-KEYWORD,anthropic

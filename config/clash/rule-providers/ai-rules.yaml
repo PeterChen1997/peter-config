@@ -1,0 +1,15 @@
+# AI 补充规则（自维护）→ 策略组「AI 专线」（美国静态住宅出口）
+# OpenAI / Claude / Gemini 主体域名由 blackmatrix7 规则集覆盖（bm7-openai / bm7-claude / bm7-gemini），
+# 这里只放 bm7 未收录或需要强制走住宅 IP 的补充项，避免重复维护。
+payload:
+  # xAI / Grok
+  - DOMAIN-SUFFIX,x.ai
+  - DOMAIN-SUFFIX,grok.com
+  # Perplexity
+  - DOMAIN-SUFFIX,perplexity.ai
+  - DOMAIN-SUFFIX,pplx.ai
+  # Google AI（Gemini 规则集的 API 侧补充）
+  - DOMAIN-SUFFIX,aistudio.google.com
+  - DOMAIN-SUFFIX,generativelanguage.googleapis.com
+  # Mistral
+  - DOMAIN-SUFFIX,mistral.ai

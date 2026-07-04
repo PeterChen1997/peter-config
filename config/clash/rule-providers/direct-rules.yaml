@@ -18,3 +18,25 @@ payload:
   - DOMAIN-SUFFIX,hdslb.com
   - DOMAIN-SUFFIX,acgvideo.com
   - DOMAIN-KEYWORD,bilibili
+  # Apple（国内有 CDN，系统更新是大流量，走直连）
+  - DOMAIN-SUFFIX,apple.com
+  - DOMAIN-SUFFIX,icloud.com
+  - DOMAIN-SUFFIX,icloud-content.com
+  - DOMAIN-SUFFIX,cdn-apple.com
+  - DOMAIN-SUFFIX,mzstatic.com
+  - DOMAIN-SUFFIX,aaplimg.com
+  # 代理节点服务器端点（手机 Stash 在家庭 Wi-Fi 下发起的节点连接，旁路由放行直连，避免双重代理）
+  # 注意：订阅换节点后需要同步更新这一段
+  - DOMAIN-SUFFIX,baipink.com
+  - DOMAIN-SUFFIX,chunjingip.com
+  - DOMAIN-SUFFIX,mustbelievemyself.com
+  - DOMAIN-SUFFIX,sokeeping.com
+  - DOMAIN-SUFFIX,233netpro.com
+  - IP-CIDR,64.186.237.196/32,no-resolve
+  - IP-CIDR,151.242.165.216/32,no-resolve
+  - IP-CIDR,89.28.239.193/32,no-resolve
+  - IP-CIDR,185.212.62.166/32,no-resolve
+  - IP-CIDR,192.109.228.220/32,no-resolve
+  - IP-CIDR,45.147.48.173/32,no-resolve
+  - IP-CIDR,158.247.206.39/32,no-resolve
+  - IP-CIDR,23.95.196.34/32,no-resolve
