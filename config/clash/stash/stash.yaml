@@ -62,18 +62,9 @@ proxy-providers:
       enable: true
       url: http://www.gstatic.com/generate_204
       interval: 600
-  huayun:
-    # 花云订阅是 base64/v2ray 格式，Stash provider 只认 clash yaml，经自建 subconverter 转一遍。
-    # 把 HUAYUN_SUB_URL_ENCODED 替换成【URL 编码后】的花云订阅链接：
-    #   python3 -c "import urllib.parse;print(urllib.parse.quote('花云订阅链接', safe=''))"
-    # list=true 表示只输出 proxies 节点列表（provider 专用格式）
-    type: http
-    url: "https://sub.hweb.peterchen97.cn/sub?target=clash&url=HUAYUN_SUB_URL_ENCODED&list=true"
-    interval: 43200
-    health-check:
-      enable: true
-      url: http://www.gstatic.com/generate_204
-      interval: 600
+  # huayun: 花云订阅的 Cloudflare 只放行浏览器 UA，Stash provider 无法直接拉取。
+  # 实际做法：浏览器手动下载订阅 yaml，用 inno/update_huayun.py 把节点内联进 inno/stash-real.yaml
+  # （路由器端 mihomo 支持 provider header 覆盖 UA，可自动更新，见 openclash/custom_overwrite.sh）
 
 proxy-groups:
   # 住宅节点（从 equalvpn 订阅按名字过滤出来的中间组）
@@ -97,7 +88,7 @@ proxy-groups:
     type: url-test
     use:
       - equalvpn
-      - huayun
+      # - huayun  # 见上方 huayun 说明：节点由 update_huayun.py 内联
     filter: "IEPL|娱乐"
     url: http://www.gstatic.com/generate_204
     interval: 300
@@ -110,7 +101,7 @@ proxy-groups:
       - "大流量自动"
     use:
       - equalvpn
-      - huayun
+      # - huayun  # 见上方 huayun 说明：节点由 update_huayun.py 内联
     filter: "IEPL|娱乐"
 
   # 未命中任何规则的国外流量走这里，默认住宅（质量优先）

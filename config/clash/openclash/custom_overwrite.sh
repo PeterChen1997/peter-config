@@ -21,8 +21,11 @@
 
 CONFIG_FILE="$1"
 
-# 华云订阅链接（clash 格式）。留空则「大流量」组只使用 EqualVPN 赠送的娱乐节点（独立 80GB 娱乐流量）
+# 花云订阅链接（填 api-huacloud.net 转换器的完整 URL，在 LuCI 里填真实值，不要提交进仓库）。
+# 留空则「大流量」组只使用 EqualVPN 赠送的娱乐节点（独立 80GB 娱乐流量）。
+# 注意：花云订阅的 Cloudflare 只放行浏览器 UA，下面 provider 注入了浏览器 UA header（mihomo 支持）
 HUAYUN_SUB_URL=""
+BROWSER_UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
 
 PETER_RAW="https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers"
 BM7_RAW="https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash"
@@ -35,7 +38,7 @@ LOG_OUT "Overwrite: 注入 peter 家庭分流（AI 专线 / 大流量）..."
 # ---------- 1. 华云订阅（可选 proxy-provider） ----------
 if [ -n "$HUAYUN_SUB_URL" ]; then
    [ -z "$(ruby_read "$CONFIG_FILE" "['proxy-providers']")" ] && ruby_edit "$CONFIG_FILE" "['proxy-providers']" "{}"
-   ruby_merge_hash "$CONFIG_FILE" "['proxy-providers']" "'huayun'=>{'type'=>'http','url'=>'$HUAYUN_SUB_URL','path'=>'./proxy_provider/huayun.yaml','interval'=>43200,'health-check'=>{'enable'=>true,'url'=>'http://www.gstatic.com/generate_204','interval'=>600}}"
+   ruby_merge_hash "$CONFIG_FILE" "['proxy-providers']" "'huayun'=>{'type'=>'http','url'=>'$HUAYUN_SUB_URL','path'=>'./proxy_provider/huayun.yaml','interval'=>43200,'header'=>{'User-Agent'=>['$BROWSER_UA']},'health-check'=>{'enable'=>true,'url'=>'http://www.gstatic.com/generate_204','interval'=>600}}"
 fi
 
 # ---------- 2. 策略组（插到最前，include-all 同时覆盖订阅节点和 provider 节点） ----------
