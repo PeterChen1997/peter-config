@@ -70,13 +70,14 @@ add_rp "bm7-spotify"     "$BM7_RAW/Spotify/Spotify_No_Resolve.yaml"
 add_rp "bm7-twitter"     "$BM7_RAW/Twitter/Twitter_No_Resolve.yaml"
 add_rp "bm7-instagram"   "$BM7_RAW/Instagram/Instagram_No_Resolve.yaml"
 add_rp "bm7-telegram"    "$BM7_RAW/Telegram/Telegram_No_Resolve.yaml"
-add_rp "bm7-globalmedia" "$BM7_RAW/GlobalMedia/GlobalMedia_Classical_No_Resolve.yaml"
 add_rp "bm7-speedtest"   "$BM7_RAW/Speedtest/Speedtest_No_Resolve.yaml"
+# 注意：不要用 bm7-globalmedia —— 实测它会把 cursor.sh、claudeusercontent.com、S3 桶等
+# 非媒体域名误分类去大流量，违背"AI/未知流量默认走住宅"的原则
 
 # ---------- 4. 分流规则（插到订阅规则之前；顺序即优先级） ----------
-# 直连 → AI（先于媒体，防止 Google 系 AI 域名被媒体规则误伤）→ 大流量 → 强制代理杂项
+# 直连 → AI + 强制代理杂项（须先于媒体规则：cursor 等开发工具会被媒体规则集误伤）→ 大流量
 # 订阅自带规则随后生效：广告 REJECT / GEOSITE,CN 直连 / GEOIP,CN 直连 / MATCH,EqualVPN（组内默认=住宅）
-ruby_arr_insert_arr "$CONFIG_FILE" "['rules']" "0" "['RULE-SET,peter-direct,DIRECT','RULE-SET,peter-ai,AI 专线','RULE-SET,bm7-openai,AI 专线','RULE-SET,bm7-claude,AI 专线','RULE-SET,bm7-gemini,AI 专线','RULE-SET,bm7-youtube,大流量','RULE-SET,bm7-netflix,大流量','RULE-SET,bm7-tiktok,大流量','RULE-SET,bm7-spotify,大流量','RULE-SET,bm7-twitter,大流量','RULE-SET,bm7-instagram,大流量','RULE-SET,bm7-telegram,大流量','RULE-SET,bm7-globalmedia,大流量','RULE-SET,bm7-speedtest,大流量','RULE-SET,peter-heavy,大流量','RULE-SET,peter-proxy,AI 专线']"
+ruby_arr_insert_arr "$CONFIG_FILE" "['rules']" "0" "['RULE-SET,peter-direct,DIRECT','RULE-SET,peter-ai,AI 专线','RULE-SET,bm7-openai,AI 专线','RULE-SET,bm7-claude,AI 专线','RULE-SET,bm7-gemini,AI 专线','RULE-SET,peter-proxy,AI 专线','RULE-SET,bm7-youtube,大流量','RULE-SET,bm7-netflix,大流量','RULE-SET,bm7-tiktok,大流量','RULE-SET,bm7-spotify,大流量','RULE-SET,bm7-twitter,大流量','RULE-SET,bm7-instagram,大流量','RULE-SET,bm7-telegram,大流量','RULE-SET,bm7-speedtest,大流量','RULE-SET,peter-heavy,大流量']"
 
 LOG_OUT "Overwrite: peter 家庭分流注入完成"
 
