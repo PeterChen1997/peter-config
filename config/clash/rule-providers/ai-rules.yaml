@@ -13,5 +13,6 @@ payload:
   - DOMAIN-SUFFIX,generativelanguage.googleapis.com
   # Mistral
   - DOMAIN-SUFFIX,mistral.ai
-  # Claude 附属域名（bm7-claude 未收录，2026-07-04 日志发现被媒体规则误伤走了大流量）
-  - DOMAIN-SUFFIX,claudeusercontent.com
+  # claude 关键词全量兜底 → 住宅（覆盖 claude.ai / claudeusercontent / downloads.claude.ai 等，
+  # 2026-07-04 日志发现附属域名被媒体规则误伤走了大流量，改用关键词一次覆盖）
+  - DOMAIN-KEYWORD,claude

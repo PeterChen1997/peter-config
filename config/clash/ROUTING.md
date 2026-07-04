@@ -94,14 +94,16 @@
 
 **发现新的流量大户**（保护住宅额度，建议每 1–2 周看一次）：
 
-1. 跑仓库里的流量画像工具（基于 Clash API `/connections`，YACD 同款数据源）：
+1. Mac 上有 launchd 定时采集（`~/Library/LaunchAgents/cn.peterchen97.clash-traffic.plist`，
+   每 10 分钟采样 4 分钟，JSONL 落在 `inno/traffic-logs/`）。直接看历史汇总：
    ```bash
    export CLASH_API_SECRET=<OpenClash 管理页面密码>
-   python3 config/clash/clash_traffic.py poll 300
+   python3 config/clash/clash_traffic.py report 7    # 最近 7 天，按出口分组
    ```
-   输出按域名聚合的上下行流量 + 出口链路 + 命中规则，重点看「出口链路含住宅节点但流量大」的行。
-   也可以直接在 OpenClash「连接」页 / YACD Connections 按下载量排序人工看。
-2. 加进 `rule-providers/heavy-rules.yaml`，push 后两端最迟 24h 生效（重启立即生效）。
+   报告把「走住宅但流量大」的域名单独列出，就是优化候选。
+   临时看实时情况用 `poll 300` / 无参数快照；或 OpenClash「连接」页人工看。
+2. 非 AI/风控敏感的候选加进 `rule-providers/heavy-rules.yaml`，push 后两端最迟 24h 生效
+   （用 API `PUT /providers/rules/peter-heavy` 或重启可立即生效）。
 
 **新 AI 服务上线**：什么都不用做（兜底就是住宅）。只有当它被媒体/大流量规则误伤时，才加进 `ai-rules.yaml`。
 
