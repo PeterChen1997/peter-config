@@ -4,3 +4,6 @@ config/clash/config/*
 
 # 本地真实配置（含订阅 token，永不提交）
 inno/
+
+.playwright-mcp/
+
