@@ -21,3 +21,8 @@ payload:
   # 低价值遥测上报（Sentry/Datadog 等，没必要烧住宅额度）—— 2026-07-04 流量分析发现走住宅
   - DOMAIN-SUFFIX,sentry.io
   - DOMAIN-SUFFIX,datadoghq.com
+  # GitHub（代码拉取/Releases/LFS 大文件，无区域风控；走住宅延迟高且烧额度）—— 2026-07-04
+  - DOMAIN-SUFFIX,github.com
+  - DOMAIN-SUFFIX,githubusercontent.com
+  - DOMAIN-SUFFIX,githubassets.com
+  - DOMAIN-SUFFIX,github.io
