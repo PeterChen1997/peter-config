@@ -25,6 +25,9 @@ payload:
   - DOMAIN-SUFFIX,cdn-apple.com
   - DOMAIN-SUFFIX,mzstatic.com
   - DOMAIN-SUFFIX,aaplimg.com
+  # 机场订阅端点（国内机场封锁境外 IP，必须从家宽直连拉取，否则 403）
+  - DOMAIN-SUFFIX,api-huacloud.net
+  - DOMAIN-SUFFIX,xmancdn.net
   # 代理节点服务器端点（手机 Stash 在家庭 Wi-Fi 下发起的节点连接，旁路由放行直连，避免双重代理）
   # 注意：订阅换节点后需要同步更新这一段
   - DOMAIN-SUFFIX,baipink.com
