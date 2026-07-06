@@ -21,8 +21,8 @@ payload:
   # 低价值遥测上报（Sentry/Datadog 等，没必要烧住宅额度）—— 2026-07-04 流量分析发现走住宅
   - DOMAIN-SUFFIX,sentry.io
   - DOMAIN-SUFFIX,datadoghq.com
-  # GitHub（代码拉取/Releases/LFS 大文件，无区域风控；走住宅延迟高且烧额度）—— 2026-07-04
-  - DOMAIN-SUFFIX,github.com
+  # GitHub 大文件下载面（Releases/LFS/raw 走 objects.githubusercontent.com、Pages）—— 2026-07-06
+  # 注意：git 主机 github.com / web 资源 githubassets.com 已移到 peter-proxy（AI 专线/住宅），
+  # 因为便宜节点丢包会让 git 的 TLS 长连接 SSL_ERROR_SYSCALL 超时；这里只留纯下载、可容忍不稳的域名。
   - DOMAIN-SUFFIX,githubusercontent.com
-  - DOMAIN-SUFFIX,githubassets.com
   - DOMAIN-SUFFIX,github.io

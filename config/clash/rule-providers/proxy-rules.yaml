@@ -30,4 +30,8 @@ payload:
   - DOMAIN-KEYWORD,notion
   # 支付
   - DOMAIN-KEYWORD,stripe
+  # GitHub git 主机 + web 资源 → 走住宅稳定口（便宜大流量节点丢包会导致 git TLS SSL_ERROR_SYSCALL 超时）
+  # —— 2026-07-06 从 heavy-rules 迁出；大文件下载面 githubusercontent/github.io 仍留在大流量
+  - DOMAIN-SUFFIX,github.com
+  - DOMAIN-SUFFIX,githubassets.com
   - IP-CIDR,118.194.253.63/32,no-resolve
