@@ -26,3 +26,12 @@ payload:
   # 因为便宜节点丢包会让 git 的 TLS 长连接 SSL_ERROR_SYSCALL 超时；这里只留纯下载、可容忍不稳的域名。
   - DOMAIN-SUFFIX,githubusercontent.com
   - DOMAIN-SUFFIX,github.io
+  # PlayStation / PSN / Sony —— 2026-07-07 补漏
+  # 此前不在任何规则里，被订阅 GEOIP,CN 误判直连，导致 store.playstation.com 等 PS5 站点国内访问不了。
+  # 放大流量而非住宅：PS5 主机端游戏大包动辄几十上百 GB，设备 IP 变动后若命令主机下载会全走住宅烧额度；
+  # 便宜大流量出口更合适，Store 网页浏览这点流量也无所谓。
+  - DOMAIN-SUFFIX,playstation.com
+  - DOMAIN-SUFFIX,playstation.net
+  - DOMAIN-SUFFIX,playstationnetwork.com
+  - DOMAIN-SUFFIX,sony.com
+  - DOMAIN-SUFFIX,sonyentertainmentnetwork.com

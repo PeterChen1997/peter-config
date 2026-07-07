@@ -56,7 +56,7 @@
 2. 广告 → `REJECT`（家里 AdGuard Home 负责，Stash 规则覆盖蜂窝场景）
 3. `peter-direct` → `DIRECT`（国内 CDN、Apple、代理节点端点）
 4. `peter-ai` + `bm7-openai/claude/gemini` → `AI 专线`
-5. `peter-proxy` → `AI 专线`（强制代理杂项：开发/设计/支付工具、PlayStation/PSN 等区域锁+风控敏感服务）
+5. `peter-proxy` → `AI 专线`（强制代理杂项：开发/设计/支付工具）
    （4、5 **必须在媒体规则之前**：实测 cursor.sh、claudeusercontent.com 会被宽泛的媒体规则集误伤）
 6. `bm7-youtube/netflix/tiktok/spotify/twitter/instagram/telegram/speedtest` → `大流量`
    （**刻意不用 bm7-globalmedia**：它会把开发工具、S3 桶等非媒体域名误分类去大流量）
