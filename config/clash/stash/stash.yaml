@@ -1,13 +1,15 @@
-# Stash 主配置 —— 与家里 OpenClash 同一套分流策略（详见 config/clash/ROUTING.md）
+# Stash 主配置模板 —— 与家里 OpenClash 共用同一批 GitHub 规则集（详见 README.md）
 #
-# 使用前：
-#   1. 把下面 proxy-providers 里的 EQUALVPN_SUB_URL / HUAYUN_SUB_URL 替换成真实订阅链接
-#   2. 若 equalvpn 订阅被 Cloudflare 验证挡住无法拉取，可把本仓库 config/clash/config/equalvpn.yaml
-#      里的 proxies 段直接内联到本文件 proxies: 下，并注释掉 equalvpn provider
+# 这是公开模板，不含任何凭据：
+#   - EQUALVPN_SUB_URL 是占位符
+#   - 家里自建的住宅出口节点不写在这里
+# 生成手机可用的完整配置：
+#   python3 config/clash/stash/build_stash.py
+# 它从本机 Git 忽略的 inno/ 目录读取订阅链接和私有节点，输出到 inno/stash/。
 #
-# 策略组与 OpenClash 端同名，两端行为一致：
-#   AI 专线   → 美国静态住宅 IP（风控敏感 + 国外兜底默认）
-#   大流量    → 华云 IEPL + EqualVPN 娱乐节点（Twitter/YouTube 等流量大户）
+# 策略组：
+#   住宅节点  → 私有住宅出口（生成时插到最前）+ EqualVPN 住宅；AI、开发工具、国外兜底都走这里
+#   大流量    → EqualVPN 娱乐节点自动选优（视频 / 社交 / 大文件下载）
 
 mode: rule
 log-level: info
@@ -36,23 +38,6 @@ dns:
     - "*.msftncsi.com"
     - "*.msftconnecttest.com"
 
-# 自建节点：住宅节点故障时在「AI 专线」组里手动切换兜底
-proxies:
-  - name: "自建US-VLESS"
-    type: vless
-    server: 23.95.196.34
-    port: 443
-    uuid: d2849d1d-b2df-444f-9e26-8e3b7dad7e30
-    network: tcp
-    tls: true
-    udp: true
-    flow: xtls-rprx-vision
-    servername: m.ctrip.com
-    client-fingerprint: chrome
-    reality-opts:
-      public-key: SDS5TeilPa5vmol9eGS4a7QNiMVV4XPdg1D6tzyWwlA
-      short-id: 3a3f56
-
 proxy-providers:
   equalvpn:
     type: http
@@ -62,49 +47,48 @@ proxy-providers:
       enable: true
       url: http://www.gstatic.com/generate_204
       interval: 600
-  # huayun: 花云订阅的 Cloudflare 只放行浏览器 UA，Stash provider 无法直接拉取。
-  # 实际做法：浏览器手动下载订阅 yaml，用 inno/update_huayun.py 把节点内联进 inno/stash-real.yaml
-  # （路由器端 mihomo 支持 provider header 覆盖 UA，可自动更新，见 openclash/custom_overwrite.sh）
 
 proxy-groups:
-  # 住宅节点（从 equalvpn 订阅按名字过滤出来的中间组）
-  # 注意：select 组里 proxies 排在 use 订阅节点之前、默认选中第一个，
-  # 所以 AI 专线必须通过这个中间组把住宅压在自建节点前面，否则默认出口会变成自建 VLESS
-  - name: "住宅节点"
+  # EqualVPN 订阅里的静态住宅节点
+  - name: "EqualVPN住宅"
     type: select
     use:
       - equalvpn
     filter: "住宅|静态"
 
-  # 风控敏感（OpenAI/Claude/Gemini 等）+ 国外兜底默认出口；默认第一项 = 住宅
+  # 住宅出口：build_stash.py 会把私有住宅节点插到最前面，成为默认选项
+  - name: "住宅节点"
+    type: select
+    proxies:
+      - "EqualVPN住宅"
+
+  # 风控敏感（OpenAI / Claude / Gemini 等）+ 开发工具 + 国外兜底
   - name: "AI 专线"
     type: select
     proxies:
       - "住宅节点"
-      - "自建US-VLESS"
 
-  # 流量大户出口：自动测速选优
+  # 流量大户：自动测速选优，只用便宜节点
   - name: "大流量自动"
     type: url-test
     use:
       - equalvpn
-      # - huayun  # 见上方 huayun 说明：节点由 update_huayun.py 内联
-    filter: "IEPL|娱乐"
+    filter: "娱乐"
     url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
 
-  # 流量大户出口：手动开关，默认跟随自动
+  # 流量大户：默认跟随自动选优，便宜节点都不可用时可手动切到 AI 专线
   - name: "大流量"
     type: select
     proxies:
       - "大流量自动"
+      - "AI 专线"
     use:
       - equalvpn
-      # - huayun  # 见上方 huayun 说明：节点由 update_huayun.py 内联
-    filter: "IEPL|娱乐"
+    filter: "娱乐"
 
-  # 未命中任何规则的国外流量走这里，默认住宅（质量优先）
+  # 未命中任何规则的国外流量，默认住宅（质量优先）
   - name: "国外兜底"
     type: select
     proxies:
