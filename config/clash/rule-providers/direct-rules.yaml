@@ -26,11 +26,12 @@ payload:
   - DOMAIN-SUFFIX,mzstatic.com
   - DOMAIN-SUFFIX,aaplimg.com
   # 机场订阅端点（国内机场封锁境外 IP，必须从家宽直连拉取，否则 403）
+  - DOMAIN-SUFFIX,api-huacloud.com
   - DOMAIN-SUFFIX,api-huacloud.net
   - DOMAIN-SUFFIX,xmancdn.net
   # 代理节点服务器端点（手机 Stash 在家庭 Wi-Fi 下发起的节点连接，旁路由放行直连，避免双重代理）
-  # 注意：订阅换节点后需要同步更新这一段（2026-07-04 按 equalvpn/花云最新订阅刷新）
-  - DOMAIN-SUFFIX,apt-hcloud.org
+  # 注意：订阅换节点后需要同步更新这一段（2026-07-28 花云端点由 apt-hcloud.org 换到 aws-agent.org）
+  - DOMAIN-SUFFIX,aws-agent.org
   - IP-CIDR,69.63.211.8/32,no-resolve
   - IP-CIDR,64.186.237.196/32,no-resolve
   - IP-CIDR,151.242.165.73/32,no-resolve

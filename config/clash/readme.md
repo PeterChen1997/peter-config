@@ -4,16 +4,20 @@
 
 ## 当前架构
 
-```
-VPN 订阅（equalvpn）
-  → OpenClash 原生拉取（绕过 Cloudflare 限制）
-    → 覆写脚本 openclash/custom_overwrite.sh 注入策略组 + rule-providers
-      → clash.meta 从 GitHub 拉取自定义规则（每 24h 自动刷新）
+家庭长期方案见 [双订阅自动更新工作流](openclash/AUTO_UPDATE.md)。一份 `peter-home.yaml` 管理分流，
+EqualVPN 与花云分别作为 HTTP provider 每小时刷新；花云直接使用原始订阅，绕开实测 403 的转换器。
+「大流量自动」只测速便宜节点；「大流量」允许手动选择「AI 专线」。
+花云的网页开关操作尚未自动化，路由器定时下载不能代替浏览器步骤。
 
-iPhone Stash → stash/stash.yaml（同一套规则源，独立完整配置）
+```text
+EqualVPN 原始订阅 → 住宅节点 → AI 专线
+                → 娱乐节点 ┐
+花云原始订阅 → 全部实际节点 ┴→ 大流量自动（仅便宜节点）→ 大流量（可手动选 AI 专线）
+仓库 + bm7 规则 → 每 24h 更新分流
 ```
 
-> subconverter 服务（sub.hweb.peterchen97.cn）仍在运行，但当前订阅有 Cloudflare 验证，subconverter 无法直接拉取节点，暂时绕过。若以后切换到无验证的订阅，可重新接入。
+本次已生成私有导入配置并在隔离 mihomo 内核测试；路由器仍是旧部署，尚未切换。
+`openclash/custom_overwrite.sh` 保留兼容旧方式；iPhone Stash 仍使用原有方案，本次未迁移。
 
 ## 订阅服务商
 
@@ -33,7 +37,11 @@ iPhone Stash → stash/stash.yaml（同一套规则源，独立完整配置）
 | `rule-providers/heavy-rules.yaml` | **当前生效**：大流量补充规则 → 便宜出口 |
 | `rule-providers/proxy-rules.yaml` | **当前生效**：强制代理杂项 → AI 专线（住宅） |
 | `rule-providers/direct-rules.yaml` | **当前生效**：直连规则（国内 CDN / Apple / 节点端点） |
-| `openclash/custom_overwrite.sh` | OpenClash 覆写脚本（注入策略组 + 全部 rule-providers） |
+| `openclash/home-template.yaml` | 新长期主配置模板：双订阅、分类、便宜节点优先和住宅兜底 |
+| `openclash/build_config.py` | 从私有订阅 URL 生成可导入的配置和首启缓存 |
+| `openclash/check_providers.py` | 检查实际更新时间；可请求立即刷新 |
+| `openclash/AUTO_UPDATE.md` | 生成、导入、回滚、更新限制与验证步骤 |
+| `openclash/custom_overwrite.sh` | 兼容旧注入方式；对新主配置跳过注入 |
 | `stash/stash.yaml` | Stash 完整配置（`config/home.yaml` 已被它取代） |
 | `clash_traffic.py` | 流量画像工具：轮询 Clash API 按域名聚合流量，找流量大户（用法见 ROUTING.md） |
 | `proxy.list` | 需要走代理的自定义规则（subconverter 模板引用，备用） |
@@ -70,4 +78,4 @@ python config/clash/update_proxy_list.py --comment "AI tools" anthropic.com open
 
 在 OpenClash → Overwrite Settings → Rules Setting → Custom Config Overwrite Scripts 中配置，脚本内容见仓库 wiki 或博客文章。
 
-作用：每次配置加载后自动注入 `peter-proxy` 和 `peter-direct` 两个 rule-provider，并插到所有订阅规则之前。
+旧部署方式：注入家庭策略组和规则集。新 `peter-home.yaml` 已包含这些内容，必须避免旧脚本重复覆写。

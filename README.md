@@ -4,6 +4,10 @@
 
 Hello 朋友们，这里记录了我开发环境的基本配置以及我的设备及常用软件，inspired by [yu-tools](https://github.com/pseudoyu/yu-tools)
 
+# 本地基础设施交接
+
+家庭网络、SSH、VPS、NAS 的 agent 读取入口见 [AGENTS.md](AGENTS.md)。现网说明与访问清单位于本机 `inno/network-inventory/`；该私有目录由 Git 忽略，不随公开仓库克隆分发。旧的分流设计文档不能替代现网记录。
+
 # 开发环境配置
 
 见 config/
