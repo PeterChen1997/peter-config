@@ -42,7 +42,10 @@ EqualVPN 原始订阅 → 住宅节点 → AI 专线
 | `openclash/check_providers.py` | 检查实际更新时间；可请求立即刷新 |
 | `openclash/AUTO_UPDATE.md` | 生成、导入、回滚、更新限制与验证步骤 |
 | `openclash/custom_overwrite.sh` | 兼容旧注入方式；对新主配置跳过注入 |
+| `openclash/peter_github_rules.rb` | 现网注入脚本：把本仓库四个规则集接入路由器当前配置（不建策略组）|
+| `openclash/daily_review.py` | 网关审阅：按实际出口列出规则候选和走代理的流量大户 |
 | `stash/stash.yaml` | Stash 完整配置（`config/home.yaml` 已被它取代） |
+| `stash/README.md` | 手机端怎么同步规则、节点和配置骨架 |
 | `clash_traffic.py` | 流量画像工具：轮询 Clash API 按域名聚合流量，找流量大户（用法见 ROUTING.md） |
 | `proxy.list` | 需要走代理的自定义规则（subconverter 模板引用，备用） |
 | `direct.list` | 需要直连的自定义规则（subconverter 模板引用，备用） |
