@@ -25,6 +25,8 @@ payload:
   - DOMAIN-SUFFIX,cdn-apple.com
   - DOMAIN-SUFFIX,mzstatic.com
   - DOMAIN-SUFFIX,aaplimg.com
+  # 微软 Outlook（国内直连可用，2026-10-25 实测 302 / 0.5–1.8s）
+  - DOMAIN-SUFFIX,office365.com
   # 机场订阅端点（国内机场封锁境外 IP，必须从家宽直连拉取，否则 403）
   - DOMAIN-SUFFIX,api-huacloud.com
   - DOMAIN-SUFFIX,api-huacloud.net
