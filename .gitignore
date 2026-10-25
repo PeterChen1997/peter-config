@@ -7,3 +7,10 @@ inno/
 
 .playwright-mcp/
 
+# Claude 工作模式产物（含基础设施坐标，本仓库公开，永不提交）
+claude-ops/
+
+# 本机完整路由器设置导出，保留本地，禁止随公开仓库提交
+/openclash-settings-full.md
+/wifi-settings.md
+

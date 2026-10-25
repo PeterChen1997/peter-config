@@ -1,6 +1,9 @@
 # 家庭网络分流方案
 
-> 更新于 2026-07-04。适用端：OpenWrt 旁路由（OpenClash / mihomo 内核）+ iPhone（Stash）。
+> 现网交接（2026-10-25）：本文保留历史方案及生成工作流，不能作为路由器当前运行配置的依据。本机最新链路、浏览器修复和验证边界见 `inno/network-inventory/CURRENT.md`，访问入口见同目录 `ACCESS.md`；agent 先读仓库根目录 [AGENTS.md](../../AGENTS.md)。私有档案不随公开仓库分发。
+>
+> 更新于 2026-10-11。家庭端的新工作流和导入步骤见 [双订阅自动更新](openclash/AUTO_UPDATE.md)。
+> iPhone Stash 部分仍是旧方案；本次未改动手机配置。
 
 ## 一、设计目标
 
@@ -28,7 +31,7 @@
               ┌──────────────────────┴──────────────────────┐
               ▼                                             ▼
   家庭：UniFi 主路由 → Ser8 旁路由                 外出：iPhone Stash
-  OpenClash(equalvpn 订阅) + 覆写脚本注入          stash/stash.yaml 完整配置
+  OpenClash(peter-home.yaml) + 双 HTTP provider          stash/stash.yaml 完整配置
   + AdGuard Home（广告）                           （规则内含广告 REJECT）
               │                                             │
               └────────────┬────────────────┬───────────────┘
@@ -43,10 +46,10 @@
 
 | 策略组 | 类型 | 节点来源 | 用途 |
 |--------|------|----------|------|
-| `AI 专线` | select | filter `住宅\|静态`（Stash 端经「住宅节点」中间组保证住宅排第一、自建 VLESS 作手动兜底） | AI 厂商 + 强制代理杂项 |
-| `大流量自动` | url-test | filter `IEPL\|娱乐`，300s 测速 | 便宜节点自动选优 |
-| `大流量` | select | 默认跟随`大流量自动`，可手动 pin | 流量大户出口 |
-| `国外兜底`（Stash）/ `EqualVPN`（OpenClash 订阅自带，默认=住宅） | select | — | MATCH 兜底 |
+| `AI 专线` | select | `住宅节点`（EqualVPN 订阅按 `住宅\|静态` 筛选） | AI 厂商 + 强制代理杂项；供大流量手动选择 |
+| `大流量自动`（新家庭配置） | url-test | 花云实际节点 + EqualVPN 娱乐节点，300s 健康检查 | 只自动选优便宜节点，全失效也不选住宅 |
+| `大流量` | select | 默认跟随`大流量自动`，可手动选择 `AI 专线`、花云地区或单节点 | 流量大户出口 |
+| `国外兜底`（Stash）/ `国外兜底`（新 OpenClash 配置，默认=AI 专线） | select | — | MATCH 兜底 |
 
 > 组名刻意不带 emoji：OpenClash 的 ruby 覆写注入会把 emoji 转义成 `\Uxxxxxx`，导致规则匹配不到策略组。
 
@@ -68,12 +71,16 @@
 
 ### OpenWrt / OpenClash
 
-1. 订阅保持现状（equalvpn 原生拉取）。
-2. 把 `openclash/custom_overwrite.sh` 内容粘贴到
-   **OpenClash → 覆写设置 → 开发者选项 → 自定义覆写脚本**（替换旧的注入脚本）。
-3. （可选）在脚本顶部 `HUAYUN_SUB_URL` 填入华云订阅链接；留空则大流量组只用娱乐节点。
-4. 重启 OpenClash，在 YACD 里确认出现 `AI 专线` / `大流量` / `大流量自动` 三个组。
-5. 首次启动若弹「未找到策略组」警告可忽略（覆写发生在校验之后的假警告）。
+采用 [openclash/AUTO_UPDATE.md](openclash/AUTO_UPDATE.md) 的长期方案：
+
+1. `openclash/home-template.yaml` 定义分流与 provider，`openclash/build_config.py` 从本地私有 sources 生成 `peter-home.yaml`。
+2. EqualVPN 和花云都作为 HTTP provider，每小时更新。花云使用原始订阅，绕开实测返回 403 的转换器；网页开关仍需浏览器，尚未自动化。
+3. 导入前备份当前配置并停用旧注入脚本/额外规则覆写；保留现有 OpenClash 旁路由 DNS、防火墙、TUN 管理。
+4. 使用 `openclash/check_providers.py` 查看实际更新时间，以及自动池排除住宅、手动 AI 入口是否存在。
+5. 此次配置和隔离内核测试已完成；尚未应用到路由器，最终需在路由器自己的网络出口验证更新和分流。
+
+`custom_overwrite.sh` 保留旧部署兼容，并加入了“便宜节点自动选优、AI 专线仅手动选择”的组结构。
+它对 `peter-home.yaml` 跳过注入；新的长期配置不再依赖此脚本组装。
 
 ### iPhone / Stash
 
@@ -107,6 +114,6 @@
 
 **新 AI 服务上线**：什么都不用做（兜底就是住宅）。只有当它被媒体/大流量规则误伤时，才加进 `ai-rules.yaml`。
 
-**订阅换节点后**：同步更新 `direct-rules.yaml` 里的「代理节点服务器端点」段，否则手机在家会双重代理。
+**订阅换节点后**：新生成器会把本次节点端点直连规则放在主配置最前，但这是构建时快照。provider 自动换节点不会更新这份快照；手机在家使用新的服务器端点时，重新生成配置或更新 `direct-rules.yaml`，避免双重代理。
 
 **规则冲突排查**：记住优先级=顺序，YACD 的 Rules 页可搜域名看命中哪条。

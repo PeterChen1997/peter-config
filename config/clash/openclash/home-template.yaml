@@ -1,0 +1,320 @@
+# OpenClash / mihomo 双订阅长期配置。真实 URL 由 build_config.py 注入。
+# DNS/端口/TUN 以现有 OpenClash 旁路由设置覆写为准；控制面密码由插件管理。
+# 大流量自动只使用便宜节点；大流量可手动选择 AI 专线，AI 专线不引用大流量。
+mixed-port: 7893
+redir-port: 7892
+tproxy-port: 7895
+allow-lan: true
+mode: rule
+log-level: info
+ipv6: false
+unified-delay: true
+profile:
+  store-selected: true
+  store-fake-ip: true
+dns:
+  enable: true
+  ipv6: false
+  listen: 0.0.0.0:7874
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+  - '*.lan'
+  - '*.local'
+  - +.stun.*.*
+  - +.stun.*.*.*
+  - '*.msftncsi.com'
+  - '*.msftconnecttest.com'
+  default-nameserver:
+  - 223.5.5.5
+  - 119.29.29.29
+  proxy-server-nameserver:
+  - https://dns.alidns.com/dns-query
+  - https://doh.pub/dns-query
+  nameserver:
+  - https://dns.alidns.com/dns-query
+  - https://doh.pub/dns-query
+  fallback:
+  - https://1.1.1.1/dns-query
+  - https://8.8.8.8/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+proxies: []
+proxy-providers:
+  equalvpn:
+    type: http
+    url: EQUALVPN_SUB_URL
+    path: ./proxy_provider/peter-equalvpn.yaml
+    interval: 3600
+    proxy: DIRECT
+    header:
+      User-Agent:
+      - mihomo/1.19
+    exclude-filter: (?i)Traffic:|Expire:|剩余流量|到期时间|套餐到期
+    override:
+      additional-prefix: '[EqualVPN] '
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+      timeout: 5000
+      lazy: false
+      expected-status: 204
+  huayun:
+    type: http
+    url: HUAYUN_SUB_URL
+    path: ./proxy_provider/peter-huayun.yaml
+    interval: 3600
+    proxy: DIRECT
+    header:
+      User-Agent:
+      - mihomo/1.19
+    exclude-filter: (?i)Traffic:|Expire:|剩余流量|到期时间|套餐到期
+    override:
+      additional-prefix: '[花云] '
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+      timeout: 5000
+      lazy: false
+      expected-status: 204
+proxy-groups:
+- name: 住宅节点
+  type: select
+  use:
+  - equalvpn
+  empty-fallback: REJECT
+  filter: 住宅|静态
+- name: AI 专线
+  type: select
+  proxies:
+  - 住宅节点
+- name: 大流量自动
+  type: url-test
+  use:
+  - equalvpn
+  - huayun
+  empty-fallback: REJECT
+  filter: ^\[花云\]|娱乐
+  exclude-filter: 住宅|静态
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 80
+  lazy: false
+- name: 大流量
+  type: select
+  proxies:
+  - 大流量自动
+  - 花云自动
+  - EqualVPN娱乐自动
+  - 花云香港
+  - 花云日本
+  - 花云新加坡
+  - 花云美国
+  - AI 专线
+  use:
+  - equalvpn
+  - huayun
+  filter: ^\[花云\]|娱乐
+  empty-fallback: REJECT
+- name: 花云自动
+  type: url-test
+  use:
+  - huayun
+  empty-fallback: REJECT
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 80
+  lazy: false
+- name: EqualVPN娱乐自动
+  type: url-test
+  use:
+  - equalvpn
+  empty-fallback: REJECT
+  filter: 娱乐
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 80
+  lazy: false
+- name: 花云香港
+  type: select
+  use:
+  - huayun
+  empty-fallback: REJECT
+  filter: (?i)香港|🇭🇰|\b(hk|hong kong)\b
+- name: 花云日本
+  type: select
+  use:
+  - huayun
+  empty-fallback: REJECT
+  filter: (?i)日本|🇯🇵|\b(jp|japan)\b
+- name: 花云新加坡
+  type: select
+  use:
+  - huayun
+  empty-fallback: REJECT
+  filter: (?i)新加坡|🇸🇬|\b(sg|singapore)\b
+- name: 花云美国
+  type: select
+  use:
+  - huayun
+  empty-fallback: REJECT
+  filter: (?i)美国|🇺🇸|\b(us|usa)\b
+- name: 国外兜底
+  type: select
+  proxies:
+  - AI 专线
+  - 住宅节点
+  - 大流量
+rule-providers:
+  peter-direct:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers/direct-rules.yaml
+    interval: 86400
+    path: ./rule_provider/peter-direct.yaml
+    proxy: DIRECT
+  peter-ai:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers/ai-rules.yaml
+    interval: 86400
+    path: ./rule_provider/peter-ai.yaml
+    proxy: DIRECT
+  peter-heavy:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers/heavy-rules.yaml
+    interval: 86400
+    path: ./rule_provider/peter-heavy.yaml
+    proxy: DIRECT
+  peter-proxy:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/PeterChen1997/peter-config/master/config/clash/rule-providers/proxy-rules.yaml
+    interval: 86400
+    path: ./rule_provider/peter-proxy.yaml
+    proxy: DIRECT
+  bm7-openai:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-openai.yaml
+    proxy: DIRECT
+  bm7-claude:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-claude.yaml
+    proxy: DIRECT
+  bm7-gemini:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Gemini/Gemini_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-gemini.yaml
+    proxy: DIRECT
+  bm7-youtube:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-youtube.yaml
+    proxy: DIRECT
+  bm7-netflix:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Netflix/Netflix_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-netflix.yaml
+    proxy: DIRECT
+  bm7-tiktok:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/TikTok/TikTok_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-tiktok.yaml
+    proxy: DIRECT
+  bm7-spotify:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-spotify.yaml
+    proxy: DIRECT
+  bm7-twitter:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Twitter/Twitter_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-twitter.yaml
+    proxy: DIRECT
+  bm7-instagram:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Instagram/Instagram_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-instagram.yaml
+    proxy: DIRECT
+  bm7-telegram:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-telegram.yaml
+    proxy: DIRECT
+  bm7-speedtest:
+    type: http
+    behavior: classical
+    format: yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Speedtest/Speedtest_No_Resolve.yaml
+    interval: 86400
+    path: ./rule_provider/bm7-speedtest.yaml
+    proxy: DIRECT
+rules:
+- DOMAIN-SUFFIX,local,DIRECT
+- IP-CIDR,127.0.0.0/8,DIRECT
+- IP-CIDR,10.0.0.0/8,DIRECT
+- IP-CIDR,172.16.0.0/12,DIRECT
+- IP-CIDR,192.168.0.0/16,DIRECT
+- IP-CIDR,100.64.0.0/10,DIRECT
+- DOMAIN-SUFFIX,ipequal.com,DIRECT
+- DOMAIN-SUFFIX,api.xmancdn.net,DIRECT
+- DOMAIN-SUFFIX,api-huacloud.com,DIRECT
+- DOMAIN-SUFFIX,api-flowercloud.com,DIRECT
+- RULE-SET,peter-direct,DIRECT
+- RULE-SET,peter-ai,AI 专线
+- RULE-SET,bm7-openai,AI 专线
+- RULE-SET,bm7-claude,AI 专线
+- RULE-SET,bm7-gemini,AI 专线
+- RULE-SET,peter-proxy,AI 专线
+- RULE-SET,bm7-youtube,大流量
+- RULE-SET,bm7-netflix,大流量
+- RULE-SET,bm7-tiktok,大流量
+- RULE-SET,bm7-spotify,大流量
+- RULE-SET,bm7-twitter,大流量
+- RULE-SET,bm7-instagram,大流量
+- RULE-SET,bm7-telegram,大流量
+- RULE-SET,bm7-speedtest,大流量
+- RULE-SET,peter-heavy,大流量
+- GEOSITE,CN,DIRECT
+- GEOIP,CN,DIRECT
+- MATCH,国外兜底

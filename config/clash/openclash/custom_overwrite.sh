@@ -21,9 +21,12 @@
 
 CONFIG_FILE="$1"
 
+# 新的双 provider 主配置已经包含分流；避免旧脚本重复注入/覆盖策略组。
+case "$CONFIG_FILE" in */peter-home.yaml) exit 0 ;; esac
+
 # 花云订阅链接（填 api-huacloud.net 转换器的完整 URL，在 LuCI 里填真实值，不要提交进仓库）。
 # 留空则「大流量」组只使用 EqualVPN 赠送的娱乐节点（独立 80GB 娱乐流量）。
-# 注意：花云订阅的 Cloudflare 只放行浏览器 UA，下面 provider 注入了浏览器 UA header（mihomo 支持）
+# User-Agent 不能代替网页订阅开关；需要浏览器先打开更新权限，再触发 provider 下载。
 HUAYUN_SUB_URL=""
 BROWSER_UA="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
 
@@ -44,10 +47,10 @@ fi
 # ---------- 2. 策略组（插到最前，include-all 同时覆盖订阅节点和 provider 节点） ----------
 # AI 专线：只允许静态住宅节点，风控敏感流量 + 国外兜底走这里
 ruby_arr_insert_hash "$CONFIG_FILE" "['proxy-groups']" "0" "{'name'=>'AI 专线','type'=>'select','include-all'=>true,'filter'=>'住宅|静态'}"
-# 大流量自动：华云 IEPL + EqualVPN 娱乐节点里自动测速选优
-ruby_arr_insert_hash "$CONFIG_FILE" "['proxy-groups']" "1" "{'name'=>'大流量自动','type'=>'url-test','include-all'=>true,'filter'=>'IEPL|娱乐','url'=>'http://www.gstatic.com/generate_204','interval'=>300,'tolerance'=>50}"
-# 大流量：手动开关，默认跟随自动选优
-ruby_arr_insert_hash "$CONFIG_FILE" "['proxy-groups']" "2" "{'name'=>'大流量','type'=>'select','proxies'=>['大流量自动'],'include-all'=>true,'filter'=>'IEPL|娱乐'}"
+# 自动测速池只包含便宜节点；AI 专线只能在大流量菜单中手动选择。
+ruby_arr_insert_hash "$CONFIG_FILE" "['proxy-groups']" "1" "{'name'=>'大流量自动','type'=>'url-test','include-all'=>true,'filter'=>'IEPL|娱乐','exclude-filter'=>'住宅|静态','url'=>'http://www.gstatic.com/generate_204','interval'=>300,'tolerance'=>50,'lazy'=>false}"
+# 大流量：默认跟随自动选优；便宜出口故障时由用户手动选择 AI 专线。
+ruby_arr_insert_hash "$CONFIG_FILE" "['proxy-groups']" "2" "{'name'=>'大流量','type'=>'select','proxies'=>['大流量自动','AI 专线'],'include-all'=>true,'filter'=>'IEPL|娱乐'}"
 
 # ---------- 3. rule-providers ----------
 add_rp() {
