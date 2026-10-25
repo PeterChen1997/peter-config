@@ -14,3 +14,6 @@ claude-ops/
 /openclash-settings-full.md
 /wifi-settings.md
 
+# Python 字节码缓存
+__pycache__/
+
