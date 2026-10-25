@@ -118,6 +118,6 @@
 
 **每周网关审阅**：`python3 config/clash/openclash/daily_review.py 7 --out inno/network-review` 按链路最后一跳统计实际出口，列出命中 `Match:` 兜底的规则候选、走代理的流量大户和 AI 出口；日报只写到 Git 忽略的 `inno/`，不进公开仓库。
 
-> 2026-10-25 核查：路由器当前运行配置未注入本仓库 rule-providers（覆写脚本里的注入已移除），仓库规则目前只对 iPhone Stash 生效；路由器侧的直连例外写在 OpenClash 自定义规则里。恢复 GitHub 统一下发前，要先把规则改为映射到现网策略组，旧脚本里的「AI 专线 / 大流量」组在现网不存在。
+> 2026-10-25 起，路由器由 `openclash/peter_github_rules.rb` 在每次加载配置时注入本仓库四个规则集（direct → DIRECT、ai → OpenAI、proxy / heavy → Proxies），本仓库重新成为路由器与 iPhone Stash 共用的规则来源。手机端怎么同步见 [stash/README.md](stash/README.md)。
 
 **规则冲突排查**：记住优先级=顺序，YACD 的 Rules 页可搜域名看命中哪条。
