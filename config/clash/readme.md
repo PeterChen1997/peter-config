@@ -46,6 +46,7 @@ EqualVPN 原始订阅 → 住宅节点 → AI 专线
 | `openclash/daily_review.py` | 网关审阅：按实际出口列出规则候选和走代理的流量大户 |
 | `stash/stash.yaml` | Stash 完整配置（`config/home.yaml` 已被它取代） |
 | `stash/README.md` | 手机端怎么同步规则、节点和配置骨架 |
+| `stash/build_stash.py` | 从模板 + 本机私有订阅 / 节点生成手机可导入的配置 |
 | `clash_traffic.py` | 流量画像工具：轮询 Clash API 按域名聚合流量，找流量大户（用法见 ROUTING.md） |
 | `proxy.list` | 需要走代理的自定义规则（subconverter 模板引用，备用） |
 | `direct.list` | 需要直连的自定义规则（subconverter 模板引用，备用） |
