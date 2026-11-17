@@ -21,6 +21,14 @@
 
 CONFIG_FILE="$1"
 
+# Opt-in two-group architecture. The overlay stays private on the router.
+case "$CONFIG_FILE" in */Home-Auto.yaml)
+  [ ! -f /etc/openclash/custom/codex_browser_network_guard.rb ] || ruby /etc/openclash/custom/codex_browser_network_guard.rb "$CONFIG_FILE" || exit 1
+  ruby /etc/openclash/custom/simple_routing_guard.rb "$CONFIG_FILE" || exit 1
+  exit 0
+  ;;
+esac
+
 # 新的双 provider 主配置已经包含分流；避免旧脚本重复注入/覆盖策略组。
 case "$CONFIG_FILE" in */peter-home.yaml) exit 0 ;; esac
 

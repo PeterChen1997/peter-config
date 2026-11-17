@@ -1,9 +1,11 @@
 # 家庭网络分流方案
 
+> 2026-11-17 现网为 [三个主组与游戏专用组](openclash/SIMPLE_ROUTING.md)：普通出网与 AI 出网都改为手动 `select`，可分别切到搬瓦工或 RackNerd；AI 两个成员是同一住宅出口分别经两台自有 VPS 拨号（该出口按来源 IP 单授权，两条链路不能同时可用）；另有隐藏的「普通自动」只在两台自有 VPS 间选延迟。模型下载仍走计量搬瓦工，到额切华云；PS5/PSN 单独走机场 TCP/UDP。原生 IPv6 保留。下文为历史设计，不应直接覆盖现网。
+>
 > 现网交接（2026-10-25）：本文保留历史方案及生成工作流，不能作为路由器当前运行配置的依据。本机最新链路、浏览器修复和验证边界见 `inno/network-inventory/CURRENT.md`，访问入口见同目录 `ACCESS.md`；agent 先读仓库根目录 [AGENTS.md](../../AGENTS.md)。私有档案不随公开仓库分发。
 >
 > 更新于 2026-10-11。家庭端的新工作流和导入步骤见 [双订阅自动更新](openclash/AUTO_UPDATE.md)。
-> iPhone Stash 部分仍是旧方案；本次未改动手机配置。
+> iPhone Stash 由 `config/clash/stash/export_home_stash.py` 从家庭配置重新导出（2026-11-17 已更新为可切换的两条 AI 链路与「普通自动」）；手机 AI 组额外提供各自的 SOCKS5 变体。
 
 ## 一、设计目标
 
